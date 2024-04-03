@@ -28,17 +28,40 @@ class ImagePreprocessor:
         for true_false_folders in os.listdir(self.input_folder):
             print(f"Processing folder: {true_false_folders}")
             true_false = "true/" if true_false_folders == "with Synkinesia" else "false/"
-            for patient_folder in os.listdir(os.path.join(self.input_folder, true_false_folders)):
-                rnd = np.random.rand()
-                train_val_test = "train/" if rnd < 0.7 else "validation/" if rnd < 0.8 else "test/"
-                for file in os.listdir(os.path.join(os.path.join(self.input_folder, true_false_folders), patient_folder)):
-                    image_path = os.path.join(os.path.join(os.path.join(self.input_folder, true_false_folders), patient_folder), file)
-                    image = Image.open(image_path).convert('RGB')
-                    image = self.crop_image(image)
-                    image = self.resize_image(image)
-                    output_path = os.path.join(self.output_folder, train_val_test + true_false + str(patient_id) + file.split(' ')[-1].split('.')[0].lower() + ".jpg")
-                    image.save(output_path, "jpeg")
-                patient_id += 1
+
+            if true_false == "true/":
+                for patient_folder in os.listdir(os.path.join(self.input_folder, true_false_folders)):
+                    rnd = np.random.rand()
+                    train_val_test = "train/" if rnd < 0.7 else "validation/" if rnd < 0.8 else "test/"
+                    for file in os.listdir(os.path.join(os.path.join(self.input_folder, true_false_folders), patient_folder)):
+                        image_path = os.path.join(os.path.join(os.path.join(self.input_folder, true_false_folders), patient_folder), file)
+                        image = Image.open(image_path).convert('RGB')
+                        image = self.crop_image(image)
+                        image = self.resize_image(image)
+                        output_path = os.path.join(self.output_folder, train_val_test + true_false + str(patient_id) + file.split(' ')[-1].split('.')[0].lower() + ".jpg")
+                        image.save(output_path, "jpeg")
+                    patient_id += 1
+            else:
+                for cat_folder in os.listdir(os.path.join(self.input_folder, true_false_folders)):
+                    cat = "toset"
+                    if cat_folder == "Closed eyes":
+                        cat = "eyes"
+                    elif cat_folder == "Full effort smile":
+                        cat = "smile"
+                    elif cat_folder == "Resting face":
+                        cat = "rest"
+
+                    for file in os.listdir(os.path.join(os.path.join(self.input_folder, true_false_folders), cat_folder)):
+                        rnd = np.random.rand()
+                        train_val_test = "train/" if rnd < 0.7 else "validation/" if rnd < 0.8 else "test/"
+
+                        image_path = os.path.join(os.path.join(os.path.join(self.input_folder, true_false_folders), cat_folder), file)
+                        image = Image.open(image_path).convert('RGB')
+                        image = self.crop_image(image)
+                        image = self.resize_image(image)
+                        output_path = os.path.join(self.output_folder, train_val_test + true_false + str(patient_id) + cat + ".jpg")
+                        image.save(output_path, "jpeg")
+                        patient_id += 1
 
     def resize_image(self, image):
         # Resize the image to 256x256

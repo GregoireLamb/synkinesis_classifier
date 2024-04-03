@@ -32,7 +32,7 @@ def train(params={},
     # Define loss function and optimizer
     weight_tensor = torch.tensor(weight).to(device)
     criterion = nn.BCEWithLogitsLoss(pos_weight=weight_tensor).to(device)  # Binary Cross Entropy with Logits Loss
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
     # lr_scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=20, verbose=1)
 
     # Define transforms for data preprocessing
@@ -146,8 +146,8 @@ def main(PREPROCESSING, TRAINING):
     preprocessed_folder = "./data/preprocessed_images"
     writer = SummaryWriter()
     batch_size = 20
-    weight = [3/10]
-    num_epochs = 100
+    weight = [1]
+    num_epochs = 20
     params_model = {
         "shape_in": (3, 256, 256),
         "initial_filters": 8,
@@ -174,7 +174,7 @@ def main(PREPROCESSING, TRAINING):
 
 
 if __name__ == "__main__":
-    PREPROCESSING = True
+    PREPROCESSING = False
     TRAINING = True
 
     main(PREPROCESSING, TRAINING)
