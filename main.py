@@ -30,7 +30,7 @@ def train(params={},
     model = CNN(params=params).to(device)
 
     # Define loss function and optimizer
-    weight_tensor = torch.tensor(weight).to(device) # TODO: Implemetn
+    weight_tensor = torch.tensor(weight).to(device)
     criterion = nn.BCEWithLogitsLoss(pos_weight=weight_tensor).to(device)  # Binary Cross Entropy with Logits Loss
     optimizer = optim.Adam(model.parameters(), lr=0.01)
     # lr_scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=20, verbose=1)
@@ -145,7 +145,15 @@ def main(PREPROCESSING, TRAINING):
     input_folder = "./data/facial palsy patients"
     preprocessed_folder = "./data/preprocessed_images"
     writer = SummaryWriter()
-    batch_size = 15
+    batch_size = 20
+    weight = [3/10]
+    num_epochs = 100
+    params_model = {
+        "shape_in": (3, 256, 256),
+        "initial_filters": 8,
+        "num_fc1": 100,
+        "dropout_rate": 0.15,
+        "num_classes": 1}
 
     #  PREPROCESSING
 
@@ -156,23 +164,17 @@ def main(PREPROCESSING, TRAINING):
     # TRAINING
 
     if TRAINING:
-        params_model = {
-            "shape_in": (3, 256, 256),
-            "initial_filters": 8,
-            "num_fc1": 100,
-            "dropout_rate": 0.15,
-            "num_classes": 1}
-
         model = train(writer=writer,
                       device=device,
                       batch_size=batch_size,
                       params=params_model,
-                      weight=[30/146])
+                      weight=weight,
+                      num_epochs=num_epochs)
         test(model, writer=writer, device=device, batch_size=batch_size)
 
 
 if __name__ == "__main__":
-    PREPROCESSING = False
+    PREPROCESSING = True
     TRAINING = True
 
     main(PREPROCESSING, TRAINING)

@@ -60,8 +60,5 @@ class CNN(nn.Module):
         X = X.view(-1, self.num_flatten)
 
         X = F.relu(self.fc1(X))
-        # X = F.dropout(X, self.dropout_rate)
         X = self.fc2(X)
-        # print(X)
-        # X = F.log_softmax(X, dim=1)
         return X
