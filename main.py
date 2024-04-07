@@ -60,9 +60,6 @@ def train(params={},
             outputs = model(inputs).squeeze()  # Squeeze the output
             labels = labels.to(device).squeeze().float()  # Squeeze the labels and convert to float
 
-            # print("Outputs: ", outputs)
-            # print("Labels: ", labels)
-
             loss = criterion(outputs, labels)  # Squeeze the output and convert labels to float
 
             # Backward pass and optimize
@@ -138,7 +135,7 @@ def test(model, writer=None, device=torch.device('cpu'), batch_size=15):
     writer.add_image('Confusion Matrix Heatmap TESTING', img)
 
 
-def main(PREPROCESSING, TRAINING):
+def main(PREPROCESSING, TRAINING, SAVE_MODEL):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Device: {device}")
 
@@ -170,11 +167,49 @@ def main(PREPROCESSING, TRAINING):
                       params=params_model,
                       weight=weight,
                       num_epochs=num_epochs)
-        test(model, writer=writer, device=device, batch_size=batch_size)
+    else:
+        model = CNN(params=params_model).to(device)
+        model.load_state_dict(torch.load("./models/model2.pth"))
+
+    test(model, writer=writer, device=device, batch_size=batch_size)
+
+    # SAVE MODEL
+
+    if SAVE_MODEL:
+        model.eval()
+
+        torch.save(model.state_dict(), "./models/model3.pth")
+        print("Model saved successfully!")
+
+        transform = transforms.Compose([
+            transforms.ToTensor(),  # Convert to tensor
+        ])
+
+        test_dataset = ImageFolder(root="./data/preprocessed_images/test", transform=transform)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+        for (images, labels) in test_loader:
+            one_input = images[0]
+            break
+
+        torch.onnx.export(model,  # model being run
+                          one_input.reshape(1, 3, 256, 256),  # model input (or a tuple for multiple inputs)
+                          "models/model.onnx",  # where to save the model (can be a file or file-like object)
+                          export_params=True,  # store the trained parameter weights inside the model file
+                          opset_version=10,  # the ONNX version to export the model to
+                          do_constant_folding=True,  # whether to execute constant folding for optimization
+                          input_names=['input'],  # the model's input names
+                          output_names=['output'],  # the model's output names
+                          dynamic_axes={'input': {0: 'batch_size'},  # variable length axes
+                                        'output': {0: 'batch_size'}})
+
 
 
 if __name__ == "__main__":
     PREPROCESSING = False
-    TRAINING = True
+    TRAINING = False
+    SAVE_MODEL = True
 
-    main(PREPROCESSING, TRAINING)
+    torch.manual_seed(123)
+    np.random.seed(123)
+
+    main(PREPROCESSING, TRAINING, SAVE_MODEL)

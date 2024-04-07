@@ -1,0 +1,146 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synkinesis_classifier</title>
+    <style>
+        body {
+            background-color: #f2f2f2; /* Light gray background */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff; /* White background for the form container */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Box shadow for a slight elevation effect */
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            text-align: center;
+        }
+        input[type="file"] {
+            margin-top: 20px;
+            margin-bottom: 10px; /* Adjusted margin */
+            display: block; /* Display as block to align the button below */
+        }
+        .upload-btn {
+            background-color: #007bff; /* Blue submit button */
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .choose-file {
+            background-color: #f2f2f2; /* Blue submit button */
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 75px;
+        }
+        .upload-btn:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        .drag-drop {
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 5px; /* Adjusted margin */
+            margin-bottom: 20px; /* Adjusted margin */
+            cursor: pointer;
+        }
+        .drag-drop:hover {
+            border-color: #007bff; /* Blue border on hover */
+        }
+    </style>
+</head>
+<body>
+    <h1>Synkinesis detection</h1>
+        <div class="container">
+        <form id="upload-form" action="/predict" method="post" enctype="multipart/form-data">
+            <div class="drag-drop" id="drag-drop">
+                <p>Drag & Drop Image Here</p>
+            </div>
+            <label for="file-input" class="choose-file">Or choose File</label>
+            <input type="file" id="file-input" name="file" style="display: none;">
+            <input type="submit" class="upload-btn" value="Upload">
+        </form>
+    <script>
+        var dragDrop = document.getElementById('drag-drop');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dragDrop.addEventListener(eventName, preventDefaults, false)
+        });
+
+        // Highlight drop area when dragging file
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dragDrop.addEventListener(eventName, highlight, false)
+        });
+
+        // Unhighlight drop area when dragging file leaves it
+        ['dragleave', 'drop'].forEach(eventName => {
+            dragDrop.addEventListener(eventName, unhighlight, false)
+        });
+
+        // Handle dropped files
+        dragDrop.addEventListener('drop', handleDrop, false);
+
+        // Prevent default behaviors
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Highlight drop area
+        function highlight() {
+            dragDrop.classList.add('highlight');
+        }
+
+        // Unhighlight drop area
+        function unhighlight() {
+            dragDrop.classList.remove('highlight');
+        }
+
+        // Handle dropped files
+        function handleDrop(e) {
+            var dt = e.dataTransfer;
+            var files = dt.files;
+
+            handleFiles(files);
+        }
+
+        // Handle files from drag and drop or file input
+        function handleFiles(files) {
+            var file = files[0];
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                // Preview dropped image
+                var img = document.createElement("img");
+                img.src = e.target.result;
+                dragDrop.innerHTML = '';
+                dragDrop.appendChild(img);
+
+                // Show file name in file input
+                var fileInput = document.getElementById('file-input');
+                fileInput.files = files;
+            }
+
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
