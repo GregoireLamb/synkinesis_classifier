@@ -64,6 +64,14 @@
         .drag-drop:hover {
             border-color: #007bff; /* Blue border on hover */
         }
+        #prediction {
+            margin-top: 20px; /* Add margin to separate from drag and drop area */
+            text-align: center;
+            font-weight: bold;
+            padding: 12px;
+            background:  #f2f2f2;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -77,6 +85,7 @@
             <input type="file" id="file-input" name="file" style="display: none;">
             <input type="submit" class="upload-btn" value="Upload">
         </form>
+        <div id="prediction"></div> <!-- This div will display the prediction result -->
     <script>
         var dragDrop = document.getElementById('drag-drop');
 
@@ -128,19 +137,88 @@
             var reader = new FileReader();
 
             reader.onload = function(e) {
-                // Preview dropped image
-                var img = document.createElement("img");
+                var img = new Image();
                 img.src = e.target.result;
-                dragDrop.innerHTML = '';
-                dragDrop.appendChild(img);
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    var ctx = canvas.getContext('2d');
 
-                // Show file name in file input
-                var fileInput = document.getElementById('file-input');
-                fileInput.files = files;
-            }
+                    var maxWidth = 256;
+                    var maxHeight = 256;
+
+                    var width = img.width;
+                    var height = img.height;
+
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Preview dropped image
+                    var previewImg = new Image();
+                    previewImg.src = canvas.toDataURL();
+
+                    var dragDrop = document.getElementById('drag-drop');
+                    dragDrop.innerHTML = '';
+                    dragDrop.appendChild(previewImg);
+
+                    // Show file name in file input
+                    var fileInput = document.getElementById('file-input');
+                    fileInput.files = files; // Set the file to the input
+                };
+            };
 
             reader.readAsDataURL(file);
         }
+
+        // Function to handle files from the file input
+        function handleFileInputChange() {
+            var fileInput = document.getElementById('file-input');
+            var files = fileInput.files;
+            handleFiles(files);
+        }
+
+        // Add event listener to the file input to trigger handleFiles when a file is selected
+        document.getElementById('file-input').addEventListener('change', handleFileInputChange);
+
+
+        // Function to send image to server for prediction
+        function predictImage(file) {
+            var formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display prediction result
+                var predictionDiv = document.getElementById('prediction');
+                predictionDiv.innerText = data.prediction;
+
+                var backgroundColor = data.prediction === 'Synkinesis detected' ? 'red' : 'green';
+                predictionDiv.style.backgroundColor = backgroundColor;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+            var fileInput = document.getElementById('file-input');
+            var file = fileInput.files[0];
+            predictImage(file);
+        });
     </script>
 </body>
 </html>

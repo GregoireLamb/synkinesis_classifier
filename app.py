@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request
-from PIL import Image
 import numpy as np
 import onnxruntime as rt
+from PIL import Image
+from flask import Flask, render_template, request
+from flask import jsonify
 from torchvision.transforms import transforms
 
 app = Flask(__name__)
@@ -51,7 +52,6 @@ def home():
     return render_template('index.html')
 
 
-# Define route for image upload and prediction
 @app.route('/predict', methods=['POST'])
 def predict_image():
     if 'file' not in request.files:
@@ -71,7 +71,8 @@ def predict_image():
     else:
         prediction = "Synkinesis not detected"
 
-    return prediction
+    # Return prediction result as JSON
+    return jsonify({'prediction': prediction})
 
 
 if __name__ == '__main__':
