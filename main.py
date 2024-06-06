@@ -193,7 +193,7 @@ def main(PREPROCESSING, TRAINING, SAVE_MODEL):
 
         torch.onnx.export(model,  # model being run
                           one_input.reshape(1, 3, 256, 256),  # model input (or a tuple for multiple inputs)
-                          "models/model.onnx",  # where to save the model (can be a file or file-like object)
+                          "models/model2.onnx",  # where to save the model (can be a file or file-like object)
                           export_params=True,  # store the trained parameter weights inside the model file
                           opset_version=10,  # the ONNX version to export the model to
                           do_constant_folding=True,  # whether to execute constant folding for optimization
@@ -207,7 +207,7 @@ def main(PREPROCESSING, TRAINING, SAVE_MODEL):
 if __name__ == "__main__":
     PREPROCESSING = False
     TRAINING = False
-    SAVE_MODEL = True
+    SAVE_MODEL = False
 
     torch.manual_seed(123)
     np.random.seed(123)

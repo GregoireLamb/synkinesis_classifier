@@ -44,16 +44,16 @@ class CNN(nn.Module):
 
     def forward(self, X):
         # Convolution & Pool Layers
-        X = F.tanh(self.conv1(X))
+        X = F.relu(self.conv1(X))
         X = F.max_pool2d(X, 2, 2)
         X = nn.BatchNorm2d(8)(X)
-        X = F.tanh(self.conv2(X))
+        X = F.relu(self.conv2(X))
         X = F.max_pool2d(X, 2, 2)
         X = nn.BatchNorm2d(16)(X)
-        X = F.tanh(self.conv3(X))
+        X = F.relu(self.conv3(X))
         X = F.max_pool2d(X, 2, 2)
         X = nn.BatchNorm2d(32)(X)
-        X = F.tanh(self.conv4(X))
+        X = F.relu(self.conv4(X))
         X = F.max_pool2d(X, 2, 2)
         X = nn.BatchNorm2d(64)(X)
 

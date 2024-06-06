@@ -8,7 +8,7 @@ from torchvision.transforms import transforms
 app = Flask(__name__)
 
 # Load the ONNX model
-session = rt.InferenceSession("models/model.onnx")
+session = rt.InferenceSession("models/model2.onnx")
 
 
 def crop_image(image):
