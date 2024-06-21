@@ -16,5 +16,5 @@ CNN Model Architecture
 An easy-to-use Flask application is provided to interface with the model. This app allows users to upload facial images and receive a diagnosis.
 
 Flask App Screenshot
-![CNN_architecture](illustrations/flask.png)
+![Web application](illustrations/flask_app.png)
 
